@@ -81,39 +81,43 @@ def draw_edges():
 def clean():
     global canvas
     canvas.delete("all")
-
-# def on_button_click():
-#     global fill1
-#     (rgb, hx) = colorchooser.askcolor(title="палитра цветов")
-#     frame.config(bg=hx)
-#     #fill1 = hx
-#     #print(hx, rgb, rgb[0], rgb[1], rgb[2])
-#     # frame.config(bg=hx)
-#     fill1 = rgb
-#     # return color_code
-
-def click():
-    #global canvas
-    window = Tk()
-    window.title("Афинные преобразования")
-    window.geometry("450x400")
-
-
-root = Tk()
-root.title("Lab4")
-root.geometry("400x200")
+root = tk.Tk()
+root.title("lab4")
 
 canvas = tk.Canvas(root, width=500, height=500)
-#canvas.pack()
+canvas.pack()
 
-buttonAff = tk.Button(text="Афинные преобразования", command=click)
-buttonAff.pack(anchor="center", expand=1)
+# vertexes = []
 
-buttonRot = tk.Button(text="Поворот ребра", command=click)
-buttonRot.pack(anchor="center", expand=1)
-
-buttonFind = tk.Button(text="Поиск точки пересечения", command=click)
-buttonFind.pack(anchor="center", expand=1)
+canvas.bind("<Button-1>", draw)  # Нажатие левой кнопки мыши
 
 
+
+btn1 = Button(root, text="Задать точку")
+btn1.config(command=fDot)
+btn1.pack(side="left")
+
+btn3 = Button(root, text="Задать полигон")
+btn3.config(command=fPolygon)
+btn3.pack(side="left")
+
+btn3 = Button(root, text="Отрисовать полигон")
+btn3.config(command=draw_edges)
+btn3.pack(side="left")
+
+btn2 = Button(root, text="Сместить")
+btn2.config(command=fSegment)
+btn2.pack(side="left")
+
+btn2 = Button(root, text="Повернуть")
+btn2.config(command=fSegment)
+btn2.pack(side="left")
+
+btn2 = Button(root, text="Масштабировать")
+btn2.config(command=fSegment)
+btn2.pack(side="left")
+
+btn4 = Button(root, text="Очистка")
+btn4.config(command=clean)
+btn4.pack(side="left")
 root.mainloop()
