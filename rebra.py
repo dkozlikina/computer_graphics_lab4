@@ -9,7 +9,7 @@ rotated_segments = []
 current_segment_id = None  # Идентификатор текущего отрезка на холсте
 start_x, start_y, end_x, end_y = None, None, None, None
 def draw(event):
-    global points, points_dinamic, canvas, current_segment_id, flagSegment, start_x, start_y, end_x, end_y, flagSegment2
+    global points, points_dinamic, canvas, current_segment_id, flagSegment, start_x, start_y, end_x, end_y, flagSegment2, prev_x, prev_y
     if flagSegment:
         x, y = event.x, event.y
         points.append((x, y))
@@ -21,6 +21,7 @@ def draw(event):
         points_dinamic.clear()
         start_x, start_y = event.x, event.y
         end_x, end_y = None, None
+    prev_x, prev_y = event.x, event.y
 
 def update_edge(event):
     global end_x, end_y, start_x, start_y
@@ -122,6 +123,31 @@ def my_point():
 # x = (c2 - c1) / (m1 - m2)
 # y = m1 * x + c1
 
+def classification():
+    canvas.create_oval(prev_x - 3, prev_y - 3, prev_x + 3, prev_y + 3, fill="blue", outline='red')
+    m = (points_dinamic[3] - points_dinamic[1]) / (points_dinamic[2] - points_dinamic[0])
+    c = points_dinamic[1] - m * points_dinamic[0]
+    y_calc = m * prev_x + c
+    x_calc = (prev_y - c) / m
+    print(prev_x, prev_y)
+    print(x_calc, y_calc)
+    if x_calc < prev_x:
+        print("Правее ")
+    if x_calc > prev_x:
+        print("Левее ")
+    if y_calc > prev_y:
+        print("Выше ")
+    if y_calc < prev_y:
+        print("Ниже")
+    # if min(points_dinamic[0], points_dinamic[2]) > prev_x:
+    #     print("Левее ")
+    # if max(points_dinamic[0], points_dinamic[2]) < prev_x:
+    #     print("Правее ")
+    # if min(points_dinamic[1], points_dinamic[3]) > prev_y:
+    #     print("Ниже ")
+    # if max(points_dinamic[1], points_dinamic[3]) < prev_y:
+    #     print("Выше ")
+    # if points_dinamic[0] < prex_x < points_dinamic[0]
 root = tk.Tk()
 root.title("lab4")
 
@@ -146,5 +172,8 @@ btn5.pack(side="left")
 
 btn6 = tk.Button(root, text="Точка пересечения ребер", command=my_point)
 btn6.pack(side="left")
+
+btn7 = tk.Button(root, text="Классификация точки", command=classification)
+btn7.pack(side="left")
 
 root.mainloop()
