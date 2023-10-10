@@ -10,7 +10,7 @@ rotated_segments = []
 current_segment_id = None  # Идентификатор текущего отрезка на холсте
 start_x, start_y, end_x, end_y = None, None, None, None
 def draw(event):
-    global points, points_dinamic, canvas, current_segment_id, flagSegment, start_x, start_y, end_x, end_y, flagSegment2, prev_x, prev_y
+    global points, points_dinamic, canvas, current_segment_id, flagSegment, start_x, start_y, end_x, end_y, flagSegment2, prev_x, prev_y, flagSegment3
     if flagSegment:
         x, y = event.x, event.y
         points.append((x, y))
@@ -27,14 +27,17 @@ def draw(event):
         canvas.create_oval(prev_x - 3, prev_y - 3, prev_x + 3, prev_y + 3, fill="blue", outline='red')
         m = (points_dinamic[3] - points_dinamic[1]) / (points_dinamic[2] - points_dinamic[0])
         c = points_dinamic[1] - m * points_dinamic[0]
-        y_calc = m * prev_x + c
-        x_calc = (prev_y - c) / m
+        y_calc = round(m * prev_x + c)
+        x_calc = round((prev_y - c) / m)
         print(prev_x, prev_y)
         print(x_calc, y_calc)
-        if x_calc < prev_x:
-            canvas.create_window(200, 200, window=label1)
-        if x_calc > prev_x:
-            canvas.create_window(200, 250, window=label2)
+        if x_calc - 3 < prev_x and x_calc + 3 < prev_x:
+            canvas.create_window(70, 200, window=label1)
+        if x_calc - 3 > prev_x and x_calc + 3 > prev_x:
+            canvas.create_window(75, 250, window=label2)
+        if x_calc - 3 <= prev_x <= x_calc + 3:
+            canvas.create_window(75, 100, window=label3)
+        flagSegment3 = False
 
 def update_edge(event):
     global end_x, end_y, start_x, start_y
@@ -159,8 +162,9 @@ canvas = tk.Canvas(root, width=500, height=500)
 canvas.pack()
 
 label = tk.Label(canvas, text="Ребра параллельны и не пересекаются")
-label1 = tk.Label(canvas, text="Правее")
-label2 = tk.Label(canvas, text="Левее")
+label1 = tk.Label(canvas, text="Точка находится правее")
+label2 = tk.Label(canvas, text="Точка находится левее")
+label3 = tk.Label(canvas, text="Точка находится на прямой")
 canvas.bind("<Button-1>", draw)
 canvas.bind("<B1-Motion>", update_edge)
 canvas.bind("<ButtonRelease-1>", stop_drawing)
