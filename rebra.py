@@ -2,13 +2,14 @@ import tkinter as tk
 import math
 
 flagSegment = False
+flagSegment2 = False
 points = []
+points_dinamic = []
 rotated_segments = []
 current_segment_id = None  # Идентификатор текущего отрезка на холсте
-
+start_x, start_y, end_x, end_y = None, None, None, None
 def draw(event):
-    global points, canvas, current_segment_id, flagSegment
-
+    global points, points_dinamic, canvas, current_segment_id, flagSegment, start_x, start_y, end_x, end_y, flagSegment2
     if flagSegment:
         x, y = event.x, event.y
         points.append((x, y))
@@ -16,19 +17,44 @@ def draw(event):
         if len(points) == 2:
             draw_segment()
             flagSegment = False
+    if flagSegment2:
+        points_dinamic.clear()
+        start_x, start_y = event.x, event.y
+        end_x, end_y = None, None
+
+def update_edge(event):
+    global end_x, end_y, start_x, start_y
+    if flagSegment2:
+        if start_x and start_y:
+            end_x, end_y = event.x, event.y
+            canvas.delete("edge")  # Удалить предыдущее ребро
+            canvas.create_line(start_x, start_y, end_x, end_y, fill="black", tags="edge")
+
+def stop_drawing(event):
+    global start_x, start_y, end_x, end_y, flagSegment2
+    if flagSegment2:
+        if start_x and start_y and end_x and end_y:
+            canvas.create_line(start_x, start_y, end_x, end_y, fill="black")
+        for now in start_x, start_y, end_x, end_y:
+            points_dinamic.append(now)
+        start_x, start_y, end_x, end_y = None, None, None, None
+        flagSegment2 = False
 
 def fSegment():
-    global current_segment_id, points, flagSegment
+    global current_segment_id, points, flagSegment, flagSegment2
     current_segment_id = None  # Сбрасываем идентификатор текущего отрезка
+    flagSegment2 = False
     points.clear()
     flagSegment = True
 
 def clean():
-    global canvas, rotated_segments, current_segment_id, flagSegment
+    global canvas, rotated_segments, current_segment_id, flagSegment, prev_x, prev_y, flagSegment2
     canvas.delete("all")
+    prev_x, prev_y = -1, -1
     rotated_segments.clear()
     current_segment_id = None
     flagSegment = False
+    flagSegment2 = False
 
 def draw_segment():
     global points, canvas, current_segment_id
@@ -65,13 +91,46 @@ def rotate_segment():
 
         points[:] = new_points  # Заменяем текущие точки на повернутые
 
+def dinamic_rebro():
+    global flagSegment2
+    flagSegment2 = True
+
+
+def my_point():
+    temp = points.copy()
+    points.clear()
+    for now in temp:
+        for now1 in now:
+            points.append(now1)
+
+    print(points, points_dinamic)
+    m1 = (points[3] - points[1]) / (points[2] - points[0])
+    m2 = (points_dinamic[3] - points_dinamic[1]) / (points_dinamic[2] - points_dinamic[0])
+    if m1 == m2:
+        label = tk.Label(canvas, text="Ребра параллельны и не пересекаются")
+        canvas.create_window(200, 150, window=label)
+    else:
+        c1 = points[1] - m1 * points[0]
+        c2 = points_dinamic[1] - m2 * points_dinamic[0]
+        x = (c2 - c1) / (m1 - m2)
+        y = m1 * x + c1
+        canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="red", outline='black')
+        print(x, y)
+
+
+# m1 * x + c1 = m2 * x + c2
+# x = (c2 - c1) / (m1 - m2)
+# y = m1 * x + c1
+
 root = tk.Tk()
 root.title("lab4")
 
 canvas = tk.Canvas(root, width=500, height=500)
 canvas.pack()
 
-canvas.bind("<Button-1>", draw)  # Нажатие левой кнопки мыши
+canvas.bind("<Button-1>", draw)
+canvas.bind("<B1-Motion>", update_edge)
+canvas.bind("<ButtonRelease-1>", stop_drawing)
 
 btn2 = tk.Button(root, text="Задать отрезок", command=fSegment)
 btn2.pack(side="left")
@@ -81,5 +140,11 @@ btn3.pack(side="left")
 
 btn4 = tk.Button(root, text="Очистка", command=clean)
 btn4.pack(side="left")
+
+btn5 = tk.Button(root, text="Задать отрезок динамически", command=dinamic_rebro)
+btn5.pack(side="left")
+
+btn6 = tk.Button(root, text="Точка пересечения ребер", command=my_point)
+btn6.pack(side="left")
 
 root.mainloop()
