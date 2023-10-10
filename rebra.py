@@ -1,34 +1,34 @@
 import tkinter as tk
 import math
 
-start_segm = False
+flagSegment = False
 points = []
 rotated_segments = []
 current_segment_id = None  # Идентификатор текущего отрезка на холсте
 
 def draw(event):
-    global points, canvas, current_segment_id, start_segm
+    global points, canvas, current_segment_id, flagSegment
 
-    if start_segm:
+    if flagSegment:
         x, y = event.x, event.y
         points.append((x, y))
 
         if len(points) == 2:
             draw_segment()
-            start_segm = False
+            flagSegment = False
 
 def fSegment():
-    global current_segment_id, points, start_segm
+    global current_segment_id, points, flagSegment
     current_segment_id = None  # Сбрасываем идентификатор текущего отрезка
     points.clear()
-    start_segm = True
+    flagSegment = True
 
 def clean():
-    global canvas, rotated_segments, current_segment_id, start_segm
+    global canvas, rotated_segments, current_segment_id, flagSegment
     canvas.delete("all")
     rotated_segments.clear()
     current_segment_id = None
-    start_segm = False
+    flagSegment = False
 
 def draw_segment():
     global points, canvas, current_segment_id
