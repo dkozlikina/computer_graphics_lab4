@@ -8,19 +8,22 @@ from tkinter import colorchooser
 from tkinter import Tk, Frame, Button, BOTH, SUNKEN
 from tkinter import colorchooser
 from collections import namedtuple
+import numpy as np
 
 flagDot = False
 flagSegment = False
 flagPolygon = False
 flagMakePolygon = False
 flagPolygonExist = False
+FlagClicMove = False
 points = []
 
 
 def draw(event):
-    global points, flagDot, flagSegment, flagPolygon, flagMakePolygon, canvas
+    global points, flagDot, flagSegment, flagPolygon, flagMakePolygon, canvas, dx, dy
 
     if flagDot:
+        dx, dy = event.x, event.y
         x, y = event.x, event.y
         canvas.create_oval(x - 4, y - 4, x + 4, y + 4, fill="black", outline='white')
         flagDot = False
@@ -51,7 +54,8 @@ def fSegment():
 
 
 def fPolygon():
-    global flagPolygon
+    global flagPolygon, points
+    points.clear()
     flagPolygon = True
 
 
@@ -75,9 +79,10 @@ def draw_edges():
             dot2 = points[i + 1]
             canvas.create_line(dot1[0], dot1[1], dot2[0], dot2[1], fill="black", width=1)
         canvas.create_line(points[0][0], points[0][1], points[-1][0], points[-1][1], fill="black", width=1)
-        #points.clear()
+        # points.clear()
         flagPolygon = False
         flagPolygonExist = True
+    # points.clear()
 
 
 def clean():
@@ -86,13 +91,14 @@ def clean():
     points.clear()
     canvas.delete("all")
 
+
 # def winClose():
 #     global dx, dy, window
 #     window.destroy
 #     print("dddddd", dx, dy)
 
 def clickMove():
-    global dx, dy#, window
+    global dx, dy  # , window
     if (flagPolygonExist):
         # global canvas
         window = Tk()
@@ -113,8 +119,8 @@ def clickMove():
         entry_dy = tk.Entry(window, textvariable=text_dy)
         # entry_dx.var = tk.IntVar()
         # entry_dy.var = tk.IntVar()
-        #text_dx = name_var
-        #self.var.trace("w", self.show_message)
+        # text_dx = name_var
+        # self.var.trace("w", self.show_message)
         btn = tk.Button(window, text="Готово", command=window.destroy)
 
         label.grid(row=0, columnspan=2)
@@ -127,47 +133,95 @@ def clickMove():
         # dy = int(entry_dy.get())
         dx = int(text_dx.get())
         dy = int(text_dy.get())
-        #print(dx, dy)
+        # print(dx, dy)
+
 
 def move():
-    global points, dx, dy
-    #rotated_points = [(0,0)] * len(points)
+    global points, dx, dy, FlagClicMove
+    canvas.delete("all")
+    ddx = dx - points[0][0]
+    ddy = dy - points[0][1]
     for i in range(len(points)):
         x = points[i][0]
         y = points[i][1]
         # rotated_points[i][0] = x * math.cos(a) + y * math.sin(a)
         # rotated_points[i][1] = (-1) * x * math.sin(a) + y * math.cos(a)
-        points[i][0] = x + dx
-        points[i][1] = y + dy
-    #clean()
+        points[i][0] = x + ddx
+        points[i][1] = y + ddy
     draw_edges()
 
+
 def rotate():
-    global points, a
-    #rotated_points = [(0,0)] * len(points)
+    global points, a, canvas, dx, dy
+    # canvas.delete("all")
+    ddx = sum([k[0] for k in points]) // len(points)
+    ddy = sum([k[1] for k in points]) // len(points)
+    # rotated_points = [(0,0)] * len(points)
     for i in range(len(points)):
+        # a = np.array([points[i][0], points[i][1], 1])
+        # b = np.array([(math.cos(a), math.sin(a), 0),
+        #               (-1 * math.sin(a), math.cos(a), 0),
+        #               (-points[i][0]*math.cos(a)+points[i][1]*math.sin(a)+points[i][0],
+        #               -points[i][0]*math.sin(a)-points[i][1]*math.cos(a)+points[i][1], 1)])
+        # rez = np.dot(a, b)
+
+        first_matrix = [points[i][0], points[i][1], 1]
+        second_matrix = [[math.cos(a), math.sin(a), 0],
+                         [-1 * math.sin(a), math.cos(a), 0],
+                         [-1 * points[i][0] * math.cos(a) + points[i][1] * math.sin(a) + points[i][0],
+                          -1 * points[i][0] * math.sin(a) - points[i][1] * math.cos(a) + points[i][1], 1]]
+
+        length = len(first_matrix)
+        result_matrix = [0 for i in range(length)]
+        for m in range(length):
+            for j in range(length):
+                result_matrix[m] += first_matrix[m] * second_matrix[j][m]
+        print(result_matrix)
         x = points[i][0]
         y = points[i][1]
-        # rotated_points[i][0] = x * math.cos(a) + y * math.sin(a)
-        # rotated_points[i][1] = (-1) * x * math.sin(a) + y * math.cos(a)
+        # # rotated_points[i][0] = x * math.cos(a) + y * math.sin(a)
+        # # rotated_points[i][1] = (-1) * x * math.sin(a) + y * math.cos(a)
+        # print(points[i][0], points[i][1])
+        # points[i][0] = x - ddx
+        # points[i][1] = y - ddy
+        # dx = 0
+        # dy = 0
+        # move()
         points[i][0] = x * math.cos(a) + y * math.sin(a)
         points[i][1] = (-1) * x * math.sin(a) + y * math.cos(a)
-    #clean()
+        # dx = x
+        # dy = y
+        # move()
+        # points[i][0] = x + ddx
+        # points[i][1] = y + ddy
+        # print(points[i][0], points[i][1])
+        # print("---------")
+    # clean()
     draw_edges()
+
 
 def resize():
     global points, k
-    #rotated_points = [(0,0)] * len(points)
+    # rotated_points = [(0,0)] * len(points)
+    sum_x = sum([k[0] for k in points]) // len(points)
+    sum_y = sum([k[1] for k in points]) // len(points)
+    canvas.delete("all")
     for i in range(len(points)):
         x = points[i][0]
         y = points[i][1]
         # rotated_points[i][0] = x * math.cos(a) + y * math.sin(a)
         # rotated_points[i][1] = (-1) * x * math.sin(a) + y * math.cos(a)
-        points[i][0] = x // k
-        points[i][1] = y // k
-    #clean()
+        print(points[i][0], points[i][1])
+        points[i][0] = (x - sum_x) // k + sum_x
+        points[i][1] = (y - sum_y) // k + sum_y
+        print(points[i][0], points[i][1])
+        print("=====")
+    # clean()
     draw_edges()
 
+
+#k = 2
+k = 0.5
 
 root = tk.Tk()
 x = (root.winfo_screenwidth() - root.winfo_reqwidth()) / 2 - 250
@@ -180,11 +234,11 @@ canvas = tk.Canvas(root, width=500, height=500)
 canvas.pack()
 
 a = 30
-k = 2
-dx, dy = 50, -20
+
+dx, dy = 0, 0
 
 canvas.bind("<Button-1>", draw)  # Нажатие левой кнопки мыши
-#window = Tk()
+# window = Tk()
 
 btn1 = Button(root, text="Задать точку")
 btn1.config(command=fDot)
@@ -199,7 +253,7 @@ btn3.config(command=draw_edges)
 btn3.pack(side="left")
 
 btn2 = Button(root, text="Сместить")
-btn2.config(command=move)#clickMove)
+btn2.config(command=move)  # clickMove) #
 btn2.pack(side="left")
 
 btn2 = Button(root, text="Повернуть")
@@ -213,7 +267,5 @@ btn2.pack(side="left")
 btn4 = Button(root, text="Очистка")
 btn4.config(command=clean)
 btn4.pack(side="left")
-
-
 
 root.mainloop()
