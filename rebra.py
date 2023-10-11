@@ -32,9 +32,15 @@ def draw(event):
         print(prev_x, prev_y)
         print(x_calc, y_calc)
         if x_calc - 3 < prev_x and x_calc + 3 < prev_x:
-            canvas.create_window(70, 200, window=label1)
+            if (points_dinamic[0] >  points_dinamic[2]):
+                canvas.create_window(70, 200, window=label2)
+            else:
+                canvas.create_window(70, 200, window=label1)
         if x_calc - 3 > prev_x and x_calc + 3 > prev_x:
-            canvas.create_window(75, 250, window=label2)
+            if (points_dinamic[0] >  points_dinamic[2]):
+                canvas.create_window(70, 200, window=label1)
+            else:
+                canvas.create_window(75, 250, window=label2)
         if x_calc - 3 <= prev_x <= x_calc + 3:
             canvas.create_window(75, 100, window=label3)
         flagSegment3 = False
@@ -126,11 +132,26 @@ def my_point():
     if m1 == m2:
         canvas.create_window(200, 150, window=label)
     else:
+
+
         c1 = points[1] - m1 * points[0]
         c2 = points_dinamic[1] - m2 * points_dinamic[0]
         x = (c2 - c1) / (m1 - m2)
         y = m1 * x + c1
-        canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="red", outline='black')
+        print(x, y)
+        # if ( points)
+        tx1 = (x - points[0]) / (points[2] - points[0])
+        ty1 = (y - points[1]) / (points[3] - points[1])
+
+        tx2 = (x - points_dinamic[2]) / (points_dinamic[0] - points_dinamic[2])
+        ty2 = (y - points_dinamic[3]) / (points_dinamic[1] - points_dinamic[3])
+
+        print(tx1, ty1, tx2, ty2)
+        print(tx1 + tx2)
+        if (0 <= tx1 <= 1 and 0 <= ty1 <= 1 and 0 <= tx2 <= 1 and 0 <= ty2 <= 1):
+            canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill="red", outline='black')
+        print(y == (m1 * x + c1) and y == (m2 * x + c2))
+
         print(x, y)
 
 
@@ -188,3 +209,28 @@ btn7 = tk.Button(root, text="Классификация точки", command=cla
 btn7.pack(side="left")
 
 root.mainloop()
+
+# Для определения пересечения двух отрезков через параметрические уравнения вы можете выполнить следующие шаги:
+#
+# Представьте каждый отрезок в виде параметрического уравнения, которое описывает его путь вдоль прямой. Обычно параметрическое уравнение отрезка имеет следующий вид:
+#
+# Для отрезка 1:
+#
+# x1 = x01 + t1 * (x02 - x01)
+# y1 = y01 + t1 * (y02 - y01)
+# Для отрезка 2:
+#
+# x2 = x03 + t2 * (x04 - x03)
+# y2 = y03 + t2 * (y04 - y03)
+# Где (x01, y01) и (x02, y02) - координаты начальной и конечной точек отрезка 1, а (x03, y03) и (x04, y04) - координаты начальной и конечной точек отрезка 2. t1 и t2 - параметры, которые определяют положение точек на отрезках.
+#
+# Решите систему уравнений для t1 и t2, чтобы найти точку пересечения. Это можно сделать путем приравнивания x1 и x2, а также y1 и y2:
+#
+# x01 + t1 * (x02 - x01) = x03 + t2 * (x04 - x03)
+# y01 + t1 * (y02 - y01) = y03 + t2 * (y04 - y03)
+#
+# Решите систему уравнений для t1 и t2. Если система имеет решение, это означает, что отрезки пересекаются. Если система не имеет решения или решение находится вне интервала [0, 1] для t1 и t2, то отрезки не пересекаются.
+#
+# Если вы найдете решение в интервале [0, 1] для обоих t1 и t2, то пересекающаяся точка находится на обоих отрезках, и вы можете вычислить ее координаты.
+#
+# Это общий метод для определения пересечения отрезков с использованием параметрических уравнений. Вы можете применить этот метод к вашим отрезкам, заменив координаты отрезков и решив систему уравнений для t1 и t2.
